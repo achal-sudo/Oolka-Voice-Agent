@@ -1,0 +1,7 @@
+{
+  "name": "Dhruva - Oolka Voice Agent",
+  "description": "An AI-powered voice assistant helping users with credit, loans, and banking issues in conversational Hindi.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
