@@ -9,6 +9,7 @@ export const useLiveSession = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [volume, setVolume] = useState<number>(0);
   const [isModelSpeaking, setIsModelSpeaking] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   
   // Transcription Refs
   const inputTranscriptionRef = useRef('');
@@ -86,26 +87,20 @@ export const useLiveSession = () => {
     try {
       // Clean up any existing session first
       await disconnect();
+      setErrorMessage('');
       
       const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
       console.log("[v0] API Key present:", !!apiKey);
-      console.log("[v0] process.env.API_KEY:", process.env.API_KEY ? "SET" : "NOT SET");
-      console.log("[v0] process.env.GEMINI_API_KEY:", process.env.GEMINI_API_KEY ? "SET" : "NOT SET");
+      console.log("[v0] API Key length:", apiKey ? apiKey.length : 0);
       
       if (!apiKey) {
-        const errorMsg = "Gemini API key not found. Please add GEMINI_API_KEY to your environment variables.";
+        const errorMsg = "GEMINI_API_KEY is not configured. Please add it in the Vars section of the sidebar.";
         console.error("[v0]", errorMsg);
+        setErrorMessage(errorMsg);
         setConnectionState(ConnectionState.ERROR);
-        setMessages([{ 
-          id: 'error', 
-          role: 'system', 
-          text: errorMsg, 
-          timestamp: new Date() 
-        }]);
         return;
       }
 
-      console.log("[v0] Setting connection state to CONNECTING");
       setConnectionState(ConnectionState.CONNECTING);
       setMessages([]); // Clear messages on new connection
 
@@ -279,11 +274,8 @@ export const useLiveSession = () => {
           },
           onerror: (err) => {
             console.error('[v0] Session Error:', err);
-            console.error('[v0] Error details:', {
-              message: err?.message,
-              code: err?.code,
-              status: err?.status,
-            });
+            const msg = err?.message || 'WebSocket connection to Gemini API failed. Check your API key and network.';
+            setErrorMessage(msg);
             disconnect();
             setConnectionState(ConnectionState.ERROR);
           }
@@ -295,18 +287,16 @@ export const useLiveSession = () => {
       // Catch initial connection errors (e.g., Network Error, Invalid Key)
       sessionPromise.catch(err => {
          console.error("[v0] Connection failed at startup:", err);
-         console.error("[v0] Startup error details:", {
-           message: err?.message,
-           code: err?.code,
-           status: err?.status,
-           type: err?.constructor?.name,
-         });
+         const msg = err?.message || 'Failed to connect to Gemini Live API.';
+         setErrorMessage(msg);
          disconnect();
          setConnectionState(ConnectionState.ERROR);
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("[v0] Connection initialization failed:", error);
+      const msg = error?.message || 'Connection initialization failed.';
+      setErrorMessage(msg);
       setConnectionState(ConnectionState.ERROR);
     }
   }, [disconnect]);
@@ -323,6 +313,7 @@ export const useLiveSession = () => {
     disconnect,
     volume,
     messages,
-    isModelSpeaking
+    isModelSpeaking,
+    errorMessage
   };
 };

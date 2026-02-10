@@ -11,7 +11,8 @@ const App: React.FC = () => {
     disconnect, 
     volume, 
     messages, 
-    isModelSpeaking 
+    isModelSpeaking,
+    errorMessage 
   } = useLiveSession();
 
   const handleToggle = () => {
@@ -101,8 +102,13 @@ const App: React.FC = () => {
               )}
            </button>
            
-           <div className="h-6 mt-4 text-xs font-medium text-slate-500">
-             {connectionState === ConnectionState.ERROR && <span className="text-red-400 flex items-center gap-1">⚠ Connection Failed</span>}
+           <div className="mt-4 text-xs font-medium text-slate-500 text-center max-w-sm">
+             {connectionState === ConnectionState.ERROR && (
+               <div className="flex flex-col items-center gap-1">
+                 <span className="text-red-400 flex items-center gap-1">Connection Failed</span>
+                 {errorMessage && <span className="text-red-400/70 text-[11px] leading-relaxed">{errorMessage}</span>}
+               </div>
+             )}
            </div>
 
         </div>
