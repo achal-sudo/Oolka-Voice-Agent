@@ -29,11 +29,15 @@ const App: React.FC = () => {
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md z-20">
         <div className="flex items-center gap-3">
-          {/* Star Logo */}
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="white" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-             </svg>
+          {/* Star Logo with Green Live Indicator */}
+          <div className="relative">
+             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                   <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="white" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+             </div>
+             {/* Green Online Indicator (Dot) */}
+             <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-900 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.6)]"></div>
           </div>
           <div>
             <h1 className="font-semibold text-lg leading-tight tracking-wide text-white">Dhruva</h1>
@@ -47,7 +51,7 @@ const App: React.FC = () => {
           rel="noopener noreferrer"
           className="text-xs font-bold px-4 py-2 rounded-full bg-gradient-to-r from-amber-200 to-amber-400 text-slate-900 hover:from-amber-300 hover:to-amber-500 transition-all shadow-md shadow-amber-400/10 no-underline"
         >
-          UNLOCK PREMIUM
+          Unlock Dhruva
         </a>
       </header>
 
