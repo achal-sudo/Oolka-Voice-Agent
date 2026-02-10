@@ -82,12 +82,15 @@ export const useLiveSession = () => {
   }, []);
 
   const connect = useCallback(async () => {
+    console.log("[v0] Connect function called");
     try {
       // Clean up any existing session first
       await disconnect();
       
       const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
       console.log("[v0] API Key present:", !!apiKey);
+      console.log("[v0] process.env.API_KEY:", process.env.API_KEY ? "SET" : "NOT SET");
+      console.log("[v0] process.env.GEMINI_API_KEY:", process.env.GEMINI_API_KEY ? "SET" : "NOT SET");
       
       if (!apiKey) {
         const errorMsg = "Gemini API key not found. Please add GEMINI_API_KEY to your environment variables.";
@@ -102,10 +105,12 @@ export const useLiveSession = () => {
         return;
       }
 
+      console.log("[v0] Setting connection state to CONNECTING");
       setConnectionState(ConnectionState.CONNECTING);
       setMessages([]); // Clear messages on new connection
 
       // Initialize Audio Contexts
+      console.log("[v0] Initializing audio contexts...");
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       inputAudioContextRef.current = new AudioContextClass({ sampleRate: 16000 });
       outputAudioContextRef.current = new AudioContextClass({ sampleRate: 24000 });
@@ -115,11 +120,15 @@ export const useLiveSession = () => {
       gainNodeRef.current.connect(outputAudioContextRef.current.destination);
 
       // Get Microphone Access
+      console.log("[v0] Requesting microphone access...");
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
+      console.log("[v0] Microphone access granted");
 
       // Initialize Gemini Client
+      console.log("[v0] Initializing Gemini client...");
       const ai = new GoogleGenAI({ apiKey: apiKey });
+      console.log("[v0] Gemini client initialized");
       
       const config = {
         model: MODEL_NAME,
@@ -133,12 +142,13 @@ export const useLiveSession = () => {
         outputAudioTranscription: {},
       };
 
+      console.log("[v0] Connecting to Gemini Live...");
       const sessionPromise = ai.live.connect({
         model: MODEL_NAME,
         config,
         callbacks: {
           onopen: () => {
-            console.log('Gemini Live Session Opened');
+            console.log('[v0] Gemini Live Session Opened');
             setConnectionState(ConnectionState.CONNECTED);
             
             // Setup Audio Processing after connection opens
