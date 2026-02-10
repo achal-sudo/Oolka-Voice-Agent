@@ -86,8 +86,20 @@ export const useLiveSession = () => {
       // Clean up any existing session first
       await disconnect();
       
-      if (!process.env.API_KEY) {
-        throw new Error("API Key not found");
+      const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+      console.log("[v0] API Key present:", !!apiKey);
+      
+      if (!apiKey) {
+        const errorMsg = "Gemini API key not found. Please add GEMINI_API_KEY to your environment variables.";
+        console.error("[v0]", errorMsg);
+        setConnectionState(ConnectionState.ERROR);
+        setMessages([{ 
+          id: 'error', 
+          role: 'system', 
+          text: errorMsg, 
+          timestamp: new Date() 
+        }]);
+        return;
       }
 
       setConnectionState(ConnectionState.CONNECTING);
@@ -107,7 +119,7 @@ export const useLiveSession = () => {
       mediaStreamRef.current = stream;
 
       // Initialize Gemini Client
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: apiKey });
       
       const config = {
         model: MODEL_NAME,
@@ -256,7 +268,12 @@ export const useLiveSession = () => {
             setConnectionState(ConnectionState.DISCONNECTED);
           },
           onerror: (err) => {
-            console.error('Session Error:', err);
+            console.error('[v0] Session Error:', err);
+            console.error('[v0] Error details:', {
+              message: err?.message,
+              code: err?.code,
+              status: err?.status,
+            });
             disconnect();
             setConnectionState(ConnectionState.ERROR);
           }
@@ -267,13 +284,19 @@ export const useLiveSession = () => {
 
       // Catch initial connection errors (e.g., Network Error, Invalid Key)
       sessionPromise.catch(err => {
-         console.error("Connection failed at startup:", err);
+         console.error("[v0] Connection failed at startup:", err);
+         console.error("[v0] Startup error details:", {
+           message: err?.message,
+           code: err?.code,
+           status: err?.status,
+           type: err?.constructor?.name,
+         });
          disconnect();
          setConnectionState(ConnectionState.ERROR);
       });
 
     } catch (error) {
-      console.error("Connection initialization failed", error);
+      console.error("[v0] Connection initialization failed:", error);
       setConnectionState(ConnectionState.ERROR);
     }
   }, [disconnect]);
